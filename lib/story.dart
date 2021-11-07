@@ -1,8 +1,8 @@
 class Story {
   final String by;
-  final int descendants;
+  final int? descendants;
   final int id;
-  final List kids;
+  final List? kids;
   final int score;
   final int time;
   final String title;
@@ -26,7 +26,7 @@ class Story {
       by: json['by'],
       descendants: json['descendants'],
       id: json['id'],
-      kids: json['kids'],
+      kids: json['kids'] ?? [],
       score: json['score'],
       time: json['time'],
       title: json['title'],

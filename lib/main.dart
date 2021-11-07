@@ -34,29 +34,43 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   Api api = Api();
   late Future<Story> futureStory;
+  late Future<List> futureTopNew;
+  late Future<List<Story>> futureTopNewStories;
 
   @override
   void initState() {
     super.initState();
-    futureStory = api.fetchStory(8863);
+    futureTopNew = api.fetchTopNew();
+    futureTopNewStories = api.fetchTopNew().then((List results) {
+      List<int> res = results.sublist(0, 40) as List<int>;
+      return api.enrichStories(res);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(middle: Text('Home')),
-      child: Center(
-          child: FutureBuilder<Story>(
-              future: futureStory,
+        navigationBar: const CupertinoNavigationBar(middle: Text('Home')),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: FutureBuilder<List<Story>>(
+              future: futureTopNewStories,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  return Text(snapshot.data!.title);
+                  return ListView.builder(
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return SizedBox(
+                          height: 50,
+                          child:
+                              Center(child: Text(snapshot.data![index].title)),
+                        );
+                      });
                 } else if (snapshot.hasError) {
-                  return Text('${snapshot.error}');
+                  print(snapshot.toString);
                 }
-
-                return const CircularProgressIndicator();
-              })),
-    );
+                return const Center(child: CircularProgressIndicator());
+              }),
+        ));
   }
 }
